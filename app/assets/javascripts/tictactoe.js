@@ -14,19 +14,22 @@ var win_combinations = [
   [2, 4, 6]
 ]
 
+let turn = 0
+
 function attachListeners() {
-  $("td").on("click", updateState)
+  $("td").on("click", doTurn)
   $('#clear').on('click', clearGame)
   $("#previous").on("click", previousGame)
   $("#save").on("click", saveGame)
 }
 
 function player() {
-  return window.turn % 2 ? "O" : "X"
+  return turn % 2 ? "O" : "X"
 }
 
-function updateState() {
+function updateState(square) {
   let token = player()
+  $(square).append(token)
 }
 
 function setMessage(message) {
@@ -42,10 +45,11 @@ function checkWinner() {
 
 function doTurn(){
   //invokes the checkWinner() function
-  //invokes the updateState() function
+  updateState(this)
   //invokes the setMessage() function with the argument "Tie game." when the game is tied:
   //resets the board and the "turn" counter when a game is won
   ++turn
+  console.log(turn)
 }
 
 function saveGame() {
