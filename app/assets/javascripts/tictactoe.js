@@ -16,6 +16,7 @@ var win_combinations = [
 
 let turn = 0
 
+
 function attachListeners() {
   $("td").on("click", doTurn)
   $('#clear').on('click', clearGame)
@@ -33,40 +34,65 @@ function updateState(square) {
 }
 
 function setMessage(message) {
-  //sets a provided string as the innerHTML of the div#message element
   $("#message").text(message)
 }
 
 function checkWinner() {
-  //returns true or false
-  //invokes the setMessage() function with the argument "Player X Won!"
-  //invokes the setMessage() function with the argument "Player O Won!"
+  let won = false
+  let board = currentBoard()
+  win_combinations.forEach(function(combo) {
+    if(board[combo[0]] === board[combo[1]] && board[combo[0]] === board[combo[2]] && board[combo[0]] != ""){
+    won = true
+    let token = player()
+    setMessage(`Player ${token} Won!`)
+  }
+  })
+  return won
+}
+
+function tiedGame() {
+  let board = currentBoard()
+  let tied = false
+  if(!board.includes('')){
+    tied = true
+  }
+  return tied
 }
 
 function doTurn(){
-  //invokes the checkWinner() function
+  let board = currentBoard()
   updateState(this)
-  //invokes the setMessage() function with the argument "Tie game." when the game is tied:
-  //resets the board and the "turn" counter when a game is won
-  ++turn
-  console.log(turn)
+  if(checkWinner()) {
+    clearGame()
+    turn = 0
+  }else if(tiedGame()) {
+    clearGame()
+    setMessage("Tie game.")
+  }else {
+    ++turn
+  }
 }
 
 function saveGame() {
   //sends a PATCH request to the "/games/:id" route
-      let board = []
-      $("td").each (function(){
-        board.push($("td").text())
-      })
-      $.post("/games", board)
+  board = currentBoard()
+  $.post("/games", board)
 }
 
 function previousGame() {
   //adds those previous games as buttons in the DOM's div#games element
-      $.get("/game")
+      $.get("/games")
 }
 
 function clearGame() {
     $('td').empty();
     turn = 0
+}
+
+function currentBoard() {
+  let board = []
+  $('td').text((index, position) => {
+  board.push(position);
+});
+  return board
 }
