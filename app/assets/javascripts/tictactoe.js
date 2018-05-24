@@ -1,5 +1,4 @@
 // Code your JavaScript / jQuery solution here
-<<<<<<< HEAD
 $(document).ready(function() {
   attachListeners();
 });
@@ -59,12 +58,4 @@ function previousGame() {
 function clearGame() {
     $('td').empty();
     turn = 0
-=======
-function player() {
-  if(turn % 2 ==== 0) {
-    return "X"
-  } else {
-    return "O"
-  }
->>>>>>> 095e112c14e1892d4f5fb9db8ff9b7f0713a2af0
 }
