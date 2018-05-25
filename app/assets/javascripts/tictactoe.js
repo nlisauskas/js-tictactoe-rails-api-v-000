@@ -18,7 +18,11 @@ let turn = 0
 
 
 function attachListeners() {
-  $("td").on("click", doTurn)
+  $("td").on("click", function() {
+    if($(this).text() == "" && !checkWinner() && !tiedGame()) {
+      doTurn(this)
+    }
+  })
   $('#clear').on('click', clearGame)
   $("#previous").on("click", previousGame)
   $("#save").on("click", saveGame)
@@ -43,7 +47,7 @@ function checkWinner() {
   win_combinations.forEach(function(combo) {
     if(board[combo[0]] === board[combo[1]] && board[combo[0]] === board[combo[2]] && board[combo[0]] != ""){
     won = true
-    let token = player()
+    let token = board[combo[0]]
     setMessage(`Player ${token} Won!`)
   }
   })
@@ -59,17 +63,16 @@ function tiedGame() {
   return tied
 }
 
-function doTurn(){
+function doTurn(square){
   let board = currentBoard()
-  updateState(this)
+  updateState(square)
+  ++turn
   if(checkWinner()) {
     clearGame()
     turn = 0
   }else if(tiedGame()) {
     clearGame()
     setMessage("Tie game.")
-  }else {
-    ++turn
   }
 }
 
