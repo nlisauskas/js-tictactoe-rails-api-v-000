@@ -1,9 +1,10 @@
-// Code your JavaScript / jQuery solution here
+// // Code your JavaScript / jQuery solution here
 $(document).ready(function() {
   attachListeners();
 });
 
 var win_combinations = [
+// var winCombinations = [
   [0, 1, 2],
   [3, 4, 5],
   [6, 7, 8],
@@ -14,8 +15,8 @@ var win_combinations = [
   [2, 4, 6]
 ]
 
-let turn = 0
-let currentGame = 0
+var turn = 0
+var currentGame = 0
 
 function attachListeners() {
   $("td").on("click", function() {
@@ -77,6 +78,7 @@ function doTurn(square){
   }
 }
 
+
 function saveGame() {
   board = currentBoard()
   gameData = {state: board}
@@ -97,18 +99,19 @@ function previousGame() {
   })
 }
 
-  function populateBoard(game) {
-    arr = game.attributes.state
-    for (let i = 0; i < 9; i++) {
-      $(`td:eq(${i})`).text(arr[i])
-    }
-  }
+  // function populateBoard(game) {
+  //   arr = game.attributes.state
+  //   for (let i = 0; i < 9; i++) {
+  //     $(`td:eq(${i})`).text(arr[i])
+  //   }
+  // }
 
 function createButton(game) {
   if(!document.getElementById(`game-id-${game.id}`)){
     $('#games').append(`<button id="game-id-${game.id}">${game.id}</button><br>`)
     $(`#game-id-${game.id}`).on("click", function() {
-      populateBoard(game)
+      // populateBoard(game)
+      reloadGame(game.id)
     })
   }
 }
@@ -125,4 +128,35 @@ function currentBoard() {
   board.push(position);
 });
   return board
+}
+
+function reloadGame(gameID) {
+  document.getElementById('message').innerHTML = '';
+
+  const xhr = new XMLHttpRequest;
+  xhr.overrideMimeType('application/json');
+  xhr.open('GET', `/games/${gameID}`, true);
+  xhr.onload = () => {
+    const data = JSON.parse(xhr.responseText).data;
+    const id = data.id;
+    const state = data.attributes.state;
+
+    let index = 0;
+
+    for (let y = 0; y < 3; y++) {
+      for (let x = 0; x < 3; x++) {
+        document.querySelector(`[data-x="${x}"][data-y="${y}"]`).innerHTML = state[index];
+        index++;
+      }
+    }
+
+    turn = state.join('').length;
+    currentGame = id;
+
+    if (!checkWinner() && turn === 9) {
+      setMessage('Tie game.');
+    }
+  };
+
+  xhr.send(null);
 }
