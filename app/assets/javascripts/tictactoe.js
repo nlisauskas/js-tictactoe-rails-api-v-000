@@ -15,7 +15,7 @@ var win_combinations = [
 ]
 
 let turn = 0
-
+let currentGame = 0
 
 function attachListeners() {
   $("td").on("click", function() {
@@ -68,28 +68,55 @@ function doTurn(square){
   updateState(square)
   ++turn
   if(checkWinner()) {
+    saveGame()
     clearGame()
-    turn = 0
   }else if(tiedGame()) {
-    clearGame()
     setMessage("Tie game.")
+    saveGame()
+    clearGame()
   }
 }
 
 function saveGame() {
-  //sends a PATCH request to the "/games/:id" route
   board = currentBoard()
-  $.post("/games", board)
+  gameData = {state: board}
+  if(currentGame) {
+    $.ajax({url:`/games/${currentGame}`, type: 'PATCH', data: gameData})
+    console.log("editing with patch request")
+  }else {
+  $.post("/games", gameData, function(data) {
+      currentGame = (data["data"]["id"])
+      console.log("saving with post request")
+    })
+  }
 }
 
 function previousGame() {
-  //adds those previous games as buttons in the DOM's div#games element
-      $.get("/games")
+  $.get("/games", function(data) {
+    data.data.forEach(createButton)
+  })
+}
+
+  function populateBoard(game) {
+    arr = game.attributes.state
+    for (let i = 0; i < 9; i++) {
+      $(`td:eq(${i})`).text(arr[i])
+    }
+  }
+
+function createButton(game) {
+  if(!document.getElementById(`game-id-${game.id}`)){
+    $('#games').append(`<button id="game-id-${game.id}">${game.id}</button><br>`)
+    $(`#game-id-${game.id}`).on("click", function() {
+      populateBoard(game)
+    })
+  }
 }
 
 function clearGame() {
     $('td').empty();
     turn = 0
+    currentGame = 0
 }
 
 function currentBoard() {
